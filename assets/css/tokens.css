@@ -1,0 +1,46 @@
+:root {
+  /* ── رنگ‌های اصلی ── */
+  --c-bg:      #f5f0e8;   --c-bg2:     #ede7d9;   --c-bg3:     #e5ddc8;
+  --c-surface: #fdfaf5;   --c-card:    #faf6ee;   --c-card2:   #f2ead8;
+
+  /* ── طلایی ── */
+  --c-gold:    #b8860f;   --c-gold2:   #d4a017;   --c-gold3:   #e8c060;
+  --c-gold-glow: rgba(184,134,11,0.2);
+
+  /* ── تأکیدی ── */
+  --c-accent:  #7c4a1e;   --c-accent2: #9b5e2a;
+
+  /* ── وضعیت ── */
+  --c-green:   #2d7a4f;   --c-red:     #b83232;
+  --c-blue:    #2c5f8a;   --c-teal:    #2e8b7a;
+
+  /* ── متن ── */
+  --c-text:    #2c1810;   --c-text2:   #4a3020;
+  --c-muted:   #8a7060;   --c-muted2:  #b0987c;
+  --c-on-gold: #2c1810;
+
+  /* ── حاشیه ── */
+  --c-border:  rgba(120,80,40,0.15);
+  --c-border2: rgba(120,80,40,0.25);
+
+  /* ── سایه ── */
+  --shadow-sm:   0 2px 8px rgba(120,80,40,0.12);
+  --shadow-md:   0 4px 20px rgba(120,80,40,0.15);
+  --shadow-lg:   0 8px 40px rgba(120,80,40,0.20);
+  --shadow-gold: 0 4px 24px rgba(184,134,11,0.35);
+
+  /* ── گوشه‌گردی ── */
+  --r-xs: 8px;   --r-sm: 12px;  --r: 18px;
+  --r-lg: 24px;  --r-xl: 32px;
+
+  /* ── تایپوگرافی ── */
+  --font-body:    'Vazirmatn', system-ui, sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --text-xs: 11px;  --text-sm: 13px;  --text-md: 15px;
+  --text-lg: 18px;  --text-xl: 22px;  --text-2xl: 28px;
+
+  /* ── انیمیشن ── */
+  --ease-out:    cubic-bezier(.22,1,.36,1);
+  --ease-spring: cubic-bezier(.34,1.2,.64,1);
+  --t-fast: 150ms;  --t-med: 300ms;  --t-slow: 500ms;
+}

@@ -1,0 +1,183 @@
+/**
+ * CarIQ Backend - Google Apps Script
+ * این کد رو داخل Extensions > Apps Script شیت‌تون قرار بدید.
+ *
+ * پیش‌نیاز: توی همین Spreadsheet دو تب (sheet/tab) با این اسم‌های دقیق بسازید:
+ *   1) Leads   -> ردیف اول (هدر): id, at, source, game_result, score, name, phone, budget, drive, focus, expertise, interest, games_played, utm_source, utm_medium, utm_campaign
+ *   2) Cars    -> ردیف اول (هدر): id, name, brand, year, tag, origin, img, price_iran, price_label, price_opts, price_vals, hints, personality_type, personality_emoji, personality_desc, blur_opts, fun_fact, dims_json
+ *
+ * همه‌ی درخواست‌ها (لید و ماشین) از همین یک Web App URL رد می‌شن.
+ */
+
+const SPREADSHEET_ID = '1LUfz7Zbvddw5j2qve7jecpgffN7p3Df5SrURAQTgArs';
+
+const TABLES = {
+  Leads: [
+    "id","at","source","game_result","score","name","phone",
+    "budget","drive","focus","expertise","interest",
+    "games_played","utm_source","utm_medium","utm_campaign"
+  ],
+
+  Cars: [
+    "id","name","brand","year","tag","origin","img",
+    "price_iran","price_label","price_opts","price_vals",
+    "hints","personality_type","personality_emoji",
+    "personality_desc","blur_opts","fun_fact","dims_json"
+  ]
+};
+
+function getSheet(name) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(name);
+
+  // اگر شیت وجود نداشت، بساز
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+  }
+
+  // اگر هدر ندارد، هدر را ایجاد کن
+  if (TABLES[name] && sheet.getLastRow() === 0) {
+    sheet.appendRow(TABLES[name]);
+  }
+
+  return sheet;
+}
+
+function sheetToObjects(sheet) {
+  var rows = sheet.getDataRange().getValues();
+  var headers = rows.shift();
+  return rows
+    .filter(function(row) { return row.join('') !== ''; })
+    .map(function(row) {
+      var obj = {};
+      headers.forEach(function(h, i) { obj[h] = row[i]; });
+      return obj;
+    });
+}
+
+function jsonOut(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ============ GET: خوندن داده (لیدها یا ماشین‌ها) ============ */
+function doGet(e) {
+  try {
+    var type = (e.parameter.type || 'leads').toLowerCase();
+
+    if (type === 'cars') {
+      var carsSheet = getSheet('Cars');
+      return jsonOut({ status: 'ok', data: sheetToObjects(carsSheet) });
+    }
+
+    var leadsSheet = getSheet('Leads');
+    return jsonOut({ status: 'ok', data: sheetToObjects(leadsSheet) });
+
+  } catch (err) {
+    return jsonOut({ status: 'error', message: err.toString() });
+  }
+}
+
+/* ============ POST: نوشتن داده ============ */
+/*
+  بدنه‌ی درخواست (JSON) باید یک فیلد action داشته باشه:
+  - action: "add_lead"    -> payload = آبجکت لید (همون ساختار CarIQLeads.save)
+  - action: "add_car"     -> payload = آبجکت ماشین
+  - action: "update_car"  -> payload = { id, patch: {...} }
+  - action: "remove_car"  -> payload = { id }
+*/
+function doPost(e) {
+  try {
+    var body = JSON.parse(e.postData.contents);
+    var action = body.action;
+    var payload = body.payload || {};
+
+    if (action === 'add_lead') {
+      var leadsSheet = getSheet('Leads');
+      leadsSheet.appendRow([
+        payload.id || '',
+        new Date(payload.at || Date.now()),
+        payload.source || '',
+        payload.game_result || '',
+        payload.score || '',
+        (payload.contact && payload.contact.name) || '',
+        (payload.contact && payload.contact.phone) || '',
+        (payload.profile && payload.profile.budget) || '',
+        (payload.profile && payload.profile.drive) || '',
+        (payload.profile && payload.profile.focus) || '',
+        (payload.profile && payload.profile.expertise) || '',
+        (payload.profile && payload.profile.interest) || '',
+        (payload.profile && payload.profile.games_played) || '',
+        (payload.utm && payload.utm.source) || '',
+        (payload.utm && payload.utm.medium) || '',
+        (payload.utm && payload.utm.campaign) || ''
+      ]);
+      return jsonOut({ status: 'ok' });
+    }
+
+    if (action === 'add_car') {
+      var carsSheet = getSheet('Cars');
+      carsSheet.appendRow([
+        payload.id || '',
+        payload.name || '',
+        payload.brand || '',
+        payload.year || '',
+        payload.tag || '',
+        payload.origin || '',
+        payload.img || '',
+        payload.price_iran || '',
+        payload.price_label || '',
+        (payload.price_opts || []).join(','),
+        (payload.price_vals || []).join(','),
+        (payload.hints || []).join(','),
+        (payload.personality && payload.personality.type) || '',
+        (payload.personality && payload.personality.emoji) || '',
+        (payload.personality && payload.personality.desc) || '',
+        (payload.blur_opts || []).join(','),
+        payload.fun_fact || '',
+        payload.dims ? JSON.stringify(payload.dims) : ''
+      ]);
+      return jsonOut({ status: 'ok' });
+    }
+
+    if (action === 'update_car') {
+      var carsSheet2 = getSheet('Cars');
+      var rows = carsSheet2.getDataRange().getValues();
+      var headers = rows[0];
+      var idCol = headers.indexOf('id');
+      for (var i = 1; i < rows.length; i++) {
+        if (String(rows[i][idCol]) === String(payload.id)) {
+          var patch = payload.patch || {};
+          headers.forEach(function(h, colIdx) {
+            if (patch.hasOwnProperty(h)) {
+              var val = patch[h];
+              if (Array.isArray(val)) val = val.join(',');
+              carsSheet2.getRange(i + 1, colIdx + 1).setValue(val);
+            }
+          });
+          break;
+        }
+      }
+      return jsonOut({ status: 'ok' });
+    }
+
+    if (action === 'remove_car') {
+      var carsSheet3 = getSheet('Cars');
+      var rows3 = carsSheet3.getDataRange().getValues();
+      var idCol3 = rows3[0].indexOf('id');
+      for (var j = 1; j < rows3.length; j++) {
+        if (String(rows3[j][idCol3]) === String(payload.id)) {
+          carsSheet3.deleteRow(j + 1);
+          break;
+        }
+      }
+      return jsonOut({ status: 'ok' });
+    }
+
+    return jsonOut({ status: 'error', message: 'Unknown action: ' + action });
+
+  } catch (err) {
+    return jsonOut({ status: 'error', message: err.toString() });
+  }
+}

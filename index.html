@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <title>CarIQ — بازی‌های ماشین</title>
+  <link rel="stylesheet" href="assets/css/tokens.css"/>
+  <link rel="stylesheet" href="assets/css/base.css"/>
+  <link rel="stylesheet" href="assets/css/components.css"/>
+  <style>
+    .lobby-header { padding:28px 14px 20px; text-align:center; }
+    .lobby-logo {
+      display:inline-flex; align-items:center; gap:10px;
+      background:linear-gradient(135deg,var(--c-gold2),var(--c-gold));
+      border-radius:var(--r-sm); padding:10px 22px; margin-bottom:14px;
+      box-shadow:var(--shadow-gold);
+    }
+    .lobby-logo-txt { font-size:22px; font-weight:900; color:var(--c-on-gold); letter-spacing:.05em; }
+    .lobby-title  { font-size:24px; font-weight:900; margin-bottom:4px; }
+    .lobby-sub    { font-size:13px; color:var(--c-muted); }
+    .lobby-chips  { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:12px; }
+
+    .games-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 14px 14px; }
+    .game-card  {
+      background:var(--c-card); border:1.5px solid var(--c-border); border-radius:var(--r);
+      padding:18px 14px; cursor:pointer; text-decoration:none; color:inherit;
+      transition:all .22s var(--ease-spring); position:relative; overflow:hidden; display:block;
+    }
+    .game-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--c-gold3),transparent); opacity:0; transition:opacity .22s; }
+    .game-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-gold); border-color:var(--c-gold2); }
+    .game-card:hover::before { opacity:.06; }
+    .game-card:active { transform:scale(0.97); }
+    .game-card .gc-icon { font-size:2.4rem; margin-bottom:10px; }
+    .game-card .gc-name { font-size:14px; font-weight:800; margin-bottom:4px; }
+    .game-card .gc-desc { font-size:11px; color:var(--c-muted); line-height:1.5; }
+    .game-card .gc-badge { position:absolute; top:10px; left:10px; font-size:9px; font-weight:700; padding:3px 8px; border-radius:999px; background:rgba(184,134,11,0.15); color:var(--c-gold); border:1px solid rgba(184,134,11,0.25); }
+    .game-card.featured { grid-column:1/-1; display:flex; align-items:center; gap:16px; padding:20px; }
+    .game-card.featured .gc-icon { font-size:3rem; margin-bottom:0; flex-shrink:0; }
+    .game-card.featured .gc-name { font-size:16px; }
+    .game-card.disabled { opacity:.45; pointer-events:none; }
+
+    .contact-strip {
+      margin:4px 14px 14px; padding:16px;
+      background:linear-gradient(135deg,#2c1810,#4a3020);
+      border-radius:var(--r); display:flex; align-items:center; gap:14px;
+      cursor:pointer; box-shadow:var(--shadow-lg);
+    }
+    .contact-strip-text { flex:1; }
+    .contact-strip-title { font-size:14px; font-weight:800; color:#fff; margin-bottom:2px; }
+    .contact-strip-sub   { font-size:12px; color:rgba(255,255,255,0.5); }
+    .contact-strip-icon  { font-size:28px; }
+    .lobby-footer { padding:14px; text-align:center; font-size:11px; color:var(--c-muted2); }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- هدر -->
+  <div class="lobby-header" id="lobby-header"></div>
+
+  <!-- گرید بازی‌ها -->
+  <div class="games-grid" id="games-grid"></div>
+
+  <!-- نوار تماس -->
+  <div class="contact-strip" id="contact-strip">
+    <span class="contact-strip-icon">🚀</span>
+    <div class="contact-strip-text">
+      <div class="contact-strip-title">ماشین وارداتی می‌خوای؟</div>
+      <div class="contact-strip-sub">مشاوره رایگان — قشم و دبی</div>
+    </div>
+    <span style="color:rgba(255,255,255,0.3);font-size:18px">›</span>
+  </div>
+
+  <div class="lobby-footer" id="lobby-footer">CarIQ Platform v1.0</div>
+</div>
+
+<!-- مدال تماس -->
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">مشاوره رایگان خودرو</div>
+    <div class="modal-sub">با کارشناسان قشم کار تماس بگیر<br>واردات مستقیم از قشم و دبی</div>
+    <div id="contact-modal-body"></div>
+    <button class="modal-close" id="contact-modal-close">بستن</button>
+  </div>
+</div>
+
+<script src="core/config.js"></script>
+<script src="core/car-db.js"></script>
+<script src="core/shared.js"></script>
+<script src="core/lead-engine.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+const GAME_CATALOG = [
+  { id:'personality', icon:'🧬', name:'کدوم ماشین تویی؟',  desc:'تست شخصیت — دقیق و وایرال',       badge:'🔥 وایرال', featured:true  },
+  { id:'blur',        icon:'🔍', name:'ماشین از پشت مه',    desc:'تصویر تار — با هر جواب واضح‌تر', badge:'محبوب',     featured:false },
+  { id:'price',       icon:'💰', name:'حدس قیمت',           desc:'قیمت واقعی از قشم و دبی رو بزن',   badge:'جدید',      featured:false },
+  { id:'speed',       icon:'⚡', name:'اسپید راند',         desc:'۱۰ ثانیه برای هر جواب!',           badge:'آدرنالین',  featured:false },
+  { id:'wheel',       icon:'🎡', name:'چرخ شانس',           desc:'بچرخون و جایزه ببر',               badge:'هیجانی',    featured:false },
+  { id:'compare',     icon:'⚖️', name:'کدوم گرون‌تره؟',     desc:'حدس بزن کدوم ماشین گرون‌تره',      badge:'چالشی',     featured:false },
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cfg = CarIQConfig.get();
+
+  // هدر
+  const hdr = document.getElementById('lobby-header');
+  hdr.innerHTML = `
+    <div class="lobby-logo"><span style="font-size:20px">🚗</span><span class="lobby-logo-txt">CarIQ</span></div>
+    <div class="lobby-title">${cfg.lobby_title}</div>
+    <div class="lobby-sub">${cfg.lobby_subtitle}</div>
+    <div class="lobby-chips">
+      <a class="pill pill-muted" href="https://t.me/${cfg.contact.telegram.replace('@','')}" target="_blank">📱 ${cfg.contact.telegram}</a>
+      <a class="pill pill-muted" href="tel:${cfg.contact.phone}">📞 تماس مستقیم</a>
+    </div>`;
+
+  // بازی‌ها
+  const grid = document.getElementById('games-grid');
+  const enabled = cfg.games_enabled;
+  const ordered = cfg.games_order.map(id => GAME_CATALOG.find(g => g.id === id)).filter(Boolean);
+  const rest     = GAME_CATALOG.filter(g => !cfg.games_order.includes(g.id));
+  const catalog  = [...ordered, ...rest];
+
+  catalog.forEach(game => {
+    const isEnabled = enabled.includes(game.id);
+    const card = document.createElement('a');
+    card.href = `games/${game.id}/index.html`;
+    card.className = `game-card${game.featured ? ' featured' : ''}${!isEnabled ? ' disabled' : ''}`;
+    card.innerHTML = `
+      <div class="gc-badge">${game.badge}</div>
+      <div class="gc-icon">${game.icon}</div>
+      <div>
+        <div class="gc-name">${game.name}</div>
+        <div class="gc-desc">${game.desc}${!isEnabled ? '<br><em style="color:var(--c-red)">به زودی...</em>' : ''}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // فوتر
+  document.getElementById('lobby-footer').textContent = `${cfg.brand_name} v1.0 | ${cfg.contact.telegram}`;
+
+  // نوار تماس
+  document.getElementById('contact-strip').addEventListener('click', () => {
+    document.getElementById('contact-modal').classList.add('open');
+  });
+
+  // مدال تماس
+  const body = document.getElementById('contact-modal-body');
+  body.innerHTML = `
+    <a href="https://t.me/${cfg.contact.telegram.replace('@','')}" target="_blank" class="share-channel" style="margin-bottom:8px">
+      <div class="share-channel-icon">✈️</div>
+      <div><div class="share-channel-label">تلگرام</div><div class="share-channel-sub">${cfg.contact.telegram}</div></div>
+    </a>
+    <a href="tel:${cfg.contact.phone}" class="share-channel">
+      <div class="share-channel-icon">📞</div>
+      <div><div class="share-channel-label">تماس مستقیم</div><div class="share-channel-sub">${cfg.contact.phone}</div></div>
+    </a>`;
+  document.getElementById('contact-modal-close').addEventListener('click', () => {
+    document.getElementById('contact-modal').classList.remove('open');
+  });
+  document.getElementById('contact-modal').addEventListener('click', e => {
+    if (e.target.id === 'contact-modal') e.target.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

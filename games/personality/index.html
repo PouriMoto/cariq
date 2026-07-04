@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <meta name="description" content="تست شخصیت — کدوم ماشین تویی؟ | CarIQ"/>
+  <title>کدوم ماشین تویی؟ | CarIQ</title>
+  <link rel="stylesheet" href="../../assets/css/tokens.css"/>
+  <link rel="stylesheet" href="../../assets/css/base.css"/>
+  <link rel="stylesheet" href="../../assets/css/components.css"/>
+  <style>
+    /* ── Intro Screen ── */
+    .intro {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 20px; text-align: center;
+    }
+    .intro-icon { font-size: 72px; margin-bottom: 16px; animation: pop .5s var(--ease-spring); }
+    .intro-title {
+      font-size: 26px; font-weight: 900; margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--c-gold), var(--c-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .intro-sub { font-size: 14px; color: var(--c-muted); line-height: 1.8; margin-bottom: 28px; max-width: 340px; }
+    .intro-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+    .intro-meta {
+      font-size: 12px; color: var(--c-muted2); margin-top: 14px;
+      display: flex; gap: 16px; justify-content: center;
+    }
+
+    /* ── Quiz Screen ── */
+    .quiz-wrap { padding: 0 0 40px; }
+    .q-card {
+      background: var(--c-card); border: 1.5px solid var(--c-border);
+      border-radius: var(--r-lg); padding: 22px 18px;
+      box-shadow: var(--shadow-md);
+    }
+    .q-number { font-size: 11px; font-weight: 700; color: var(--c-muted2); letter-spacing: .1em; margin-bottom: 12px; }
+    .q-text { font-size: 18px; font-weight: 800; line-height: 1.65; color: var(--c-text); margin-bottom: 18px; }
+    .q-options { display: flex; flex-direction: column; gap: 10px; }
+    .q-opt {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; background: var(--c-surface);
+      border: 1.5px solid var(--c-border); border-radius: var(--r-sm);
+      cursor: pointer; transition: all .18s var(--ease-out);
+      font-size: 14px; font-weight: 600; color: var(--c-text);
+      text-align: right;
+    }
+    .q-opt:hover { border-color: var(--c-gold2); background: var(--c-card2); transform: translateX(-3px); }
+    .q-opt:active { transform: scale(0.98); }
+    .q-opt.selected { border-color: var(--c-gold); background: rgba(184,134,11,0.08); }
+    .q-opt-icon { font-size: 22px; flex-shrink: 0; }
+    .q-opt-text { flex: 1; }
+
+    /* ── Result Screen ── */
+    .result-wrap { padding: 0 0 40px; }
+
+    /* کارت قابل اشتراک */
+    .share-card-wrap {
+      position: relative; border-radius: var(--r-lg);
+      overflow: hidden; margin-bottom: 16px;
+      box-shadow: var(--shadow-lg);
+    }
+    canvas#share-canvas {
+      width: 100%; height: auto; display: block;
+      border-radius: var(--r-lg);
+    }
+    .share-card-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-end;
+      padding: 20px; pointer-events: none;
+      background: linear-gradient(to top, rgba(44,24,16,.85) 0%, transparent 55%);
+      border-radius: var(--r-lg);
+    }
+
+    /* ── Match Bars ── */
+    .match-section { margin-top: 16px; }
+    .match-title { font-size: 13px; font-weight: 700; color: var(--c-muted); margin-bottom: 12px; }
+    .match-row { margin-bottom: 10px; }
+    .match-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+    .match-car-name { color: var(--c-text2); font-weight: 700; }
+    .match-pct-val  { color: var(--c-gold); font-weight: 800; }
+    .match-track { height: 6px; background: var(--c-bg3); border-radius: 999px; overflow: hidden; }
+    .match-fill  { height: 100%; background: linear-gradient(90deg, var(--c-gold2), var(--c-gold3)); border-radius: 999px; width: 0; transition: width .8s var(--ease-out); }
+
+    /* ── Trait Chips ── */
+    .traits { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; justify-content: center; }
+    .trait-chip {
+      padding: 5px 13px; border-radius: 999px;
+      background: rgba(184,134,11,0.12); color: var(--c-gold);
+      border: 1px solid rgba(184,134,11,0.25);
+      font-size: 12px; font-weight: 700;
+    }
+
+    /* ── Radar ── */
+    .radar-wrap { display: flex; justify-content: center; margin: 16px 0; }
+    canvas#radar-canvas { width: 200px; height: 200px; }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro">
+      <div class="intro-icon">🧬</div>
+      <h1 class="intro-title">کدوم ماشین تویی؟</h1>
+      <p class="intro-sub">
+        ۶ سوال هوشمند — نتیجه شخصی‌سازی شده<br>
+        بفهم ماشین رویایی‌ات با شخصیتت چقدر هماهنگه
+      </p>
+      <div class="intro-chips">
+        <span class="pill pill-gold">🔥 وایرال‌پذیر</span>
+        <span class="pill pill-accent">🧠 علمی</span>
+        <span class="pill pill-muted">⏱️ ۲ دقیقه</span>
+      </div>
+      <button class="btn btn-gold" id="start-btn" style="max-width:280px;font-size:16px;padding:16px">
+        🚀 شروع تست
+      </button>
+      <div class="intro-meta">
+        <span>🔒 اطلاعاتت محفوظه</span>
+        <span>📊 بر اساس ۶ بُعد شخصیتی</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="game-header" id="quiz-header"></div>
+    <div class="quiz-wrap" id="quiz-content"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="result-wrap" id="result-content"></div>
+  </div>
+
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📤 اشتراک‌گذاری نتیجه</div>
+    <div class="modal-sub">کارت شخصیتی‌ات رو با دوستات به اشتراک بذار</div>
+    <div id="share-preview-wrap" style="margin-bottom:14px"></div>
+    <div class="share-channels">
+      <div class="share-channel" id="sh-download">
+        <div class="share-channel-icon">💾</div>
+        <div><div class="share-channel-label">دانلود کارت (استوری ۱۶:۹)</div><div class="share-channel-sub" id="sh-dl-sub">ذخیره کن و در استوری بذار</div></div>
+      </div>
+      <div class="share-channel" id="sh-tg">
+        <div class="share-channel-icon">✈️</div>
+        <div><div class="share-channel-label">تلگرام</div><div class="share-channel-sub">ارسال به دوستان</div></div>
+      </div>
+      <div class="share-channel" id="sh-wa">
+        <div class="share-channel-icon">💬</div>
+        <div><div class="share-channel-label">واتساپ</div><div class="share-channel-sub">استاتوس یا پیام</div></div>
+      </div>
+      <div class="share-channel" id="sh-copy">
+        <div class="share-channel-icon">📋</div>
+        <div><div class="share-channel-label">کپی متن</div><div class="share-channel-sub" id="sh-copy-sub">کپی نتیجه + لینک</div></div>
+      </div>
+    </div>
+    <button class="modal-close" id="share-modal-close">بستن</button>
+  </div>
+</div>
+
+<script src="../../core/config.js"></script>
+<script src="../../core/car-db.js"></script>
+<script src="../../core/shared.js"></script>
+<script src="../../core/lead-engine.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+/* ════════════════════════════════════════
+   GAME META — توسعه‌دهنده فقط این بخش را
+   و بخش GAME_LOGIC نیاز دارد
+   ════════════════════════════════════════ */
+window.GAME_META = {
+  id: 'personality',
+  name: 'کدوم ماشین تویی؟',
+  icon: '🧬',
+  rounds: 6,
+  estimatedTime: '۲ دقیقه',
+  viralScore: 10,
+  leadQuality: 9,
+};
+
+/* ════════════════════════════════════════
+   QUESTIONS
+   ════════════════════════════════════════ */
+const QUESTIONS = [
+  {
+    q: '💰 بودجه‌ات برای ماشین رویاییت حدوداً چقدره؟',
+    opts: [
+      { t: 'تا ۳ میلیارد — عاقلانه',        i: '💵', s: { tucson:3, sportage:2 },                 profile: { budget:'low'   } },
+      { t: '۳ تا ۸ میلیارد — معقول',         i: '💴', s: { tucson:2, tesla3:2, sportage:1 },        profile: { budget:'mid'   } },
+      { t: '۸ تا ۱۵ میلیارد — لوکس',         i: '💶', s: { prado:2, bmw_x5:3, lx600:1 },           profile: { budget:'high'  } },
+      { t: 'بالای ۱۵ میلیارد — بهترین',       i: '💎', s: { gclass:3, lc300:3, lx600:2, cayenne:2 }, profile: { budget:'vhigh' } },
+    ]
+  },
+  {
+    q: '🧬 اگه فقط یه کلمه شخصیتت رو توصیف کنه، کدومه؟',
+    opts: [
+      { t: 'رهبر — قوی و تأثیرگذار',    i: '🦁', s: { lc300:3, gclass:2 },          profile: { persona:'leader'   } },
+      { t: 'کاشف — ماجراجو و آزاد',     i: '⛰️', s: { prado:3, lc300:2 },           profile: { persona:'explorer' } },
+      { t: 'نوآور — تکنولوژی‌دوست',     i: '🚀', s: { tesla3:3, bmw_x5:2 },         profile: { persona:'innovator'} },
+      { t: 'هوشمند — عملگرا و متعادل',  i: '🎯', s: { tucson:3, sportage:2 },       profile: { persona:'smart'    } },
+    ]
+  },
+  {
+    q: '🗺️ آخر هفته‌ات معمولاً کجاست؟',
+    opts: [
+      { t: 'کافه و مراکز خرید شهر',    i: '☕', s: { tesla3:2, bmw_x5:2, tucson:1 }, profile: { drive:'city'    } },
+      { t: 'جاده و شهرهای اطراف',       i: '🛣️', s: { tucson:2, sportage:2 },        profile: { drive:'road'    } },
+      { t: 'کمپ و طبیعت‌گردی',         i: '🏕️', s: { prado:3, lc300:2 },            profile: { drive:'offroad' } },
+      { t: 'کوه و مسیرهای سخت',        i: '🏔️', s: { lc300:3, prado:2, gclass:1 },  profile: { drive:'extreme' } },
+    ]
+  },
+  {
+    q: '🌟 وقتی ماشین می‌بینی، اول چشمت کجاست؟',
+    opts: [
+      { t: 'قدرت موتور و عملکرد',       i: '⚙️', s: { lc300:2, bmw_x5:3, cayenne:3 }, profile: { focus:'performance' } },
+      { t: 'طراحی و ظاهر مدرن',         i: '🎨', s: { tesla3:3, sportage:2 },          profile: { focus:'design'      } },
+      { t: 'برند و اعتبار',             i: '🏆', s: { gclass:3, bmw_x5:2, lx600:2 },   profile: { focus:'brand'       } },
+      { t: 'فضا، راحتی، امنیت',         i: '👨‍👩‍👧', s: { prado:3, tucson:2, lc300:1 },   profile: { focus:'family'      } },
+    ]
+  },
+  {
+    q: '⚡ به تکنولوژی ماشین چقدر اهمیت می‌دی؟',
+    opts: [
+      { t: 'همه‌چیز باید هوشمند باشه',  i: '🤖', s: { tesla3:3, bmw_x5:2 },           profile: { tech:'max'    } },
+      { t: 'مهمه، ولی دوام مهم‌تره',    i: '⚖️', s: { lc300:2, prado:2, lx600:2 },    profile: { tech:'mid'    } },
+      { t: 'برام اهمیت زیادی نداره',    i: '🔧', s: { gclass:2, tucson:1 },             profile: { tech:'low'    } },
+      { t: 'تکنولوژی = آینده‌نگری',     i: '🌐', s: { tesla3:3, sportage:1 },          profile: { tech:'future' } },
+    ]
+  },
+  {
+    q: '🎭 دوستات چطور توصیفت می‌کنن؟',
+    opts: [
+      { t: 'باکلاس و شیک‌پوش',          i: '👑', s: { gclass:3, bmw_x5:2, lx600:2 }, profile: { image:'elite'    } },
+      { t: 'ساده و بی‌تکلف',            i: '😊', s: { tucson:3, sportage:2 },          profile: { image:'simple'   } },
+      { t: 'جسور و ماجراجو',            i: '🔥', s: { lc300:3, prado:2 },             profile: { image:'bold'     } },
+      { t: 'خلاق و متفاوت',             i: '💡', s: { tesla3:3, sportage:1 },          profile: { image:'creative' } },
+    ]
+  },
+];
+
+/* ═══════════════════════════════════════
+   CAR PERSONALITY TYPES
+   ═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   امتیازدهی بر اساس dims (نه شناسه ثابت)
+   ═══════════════════════════════════════ */
+const PROFILE_DIMS_WEIGHTS = {
+  budget:  { low:{economy:3}, mid:{economy:1,luxury:1}, high:{luxury:2,family:1}, vhigh:{luxury:3,sport:1} },
+  persona: { leader:{luxury:2,offroad:1}, explorer:{offroad:3}, innovator:{tech:3}, smart:{economy:2,tech:1} },
+  drive:   { city:{tech:1,economy:1}, road:{economy:2}, offroad:{offroad:3}, extreme:{offroad:3,sport:1} },
+  focus:   { performance:{sport:3}, design:{tech:2,sport:1}, brand:{luxury:3}, family:{family:3} },
+  tech:    { max:{tech:3}, mid:{tech:1,family:1}, low:{economy:1}, future:{tech:3,economy:1} },
+  image:   { elite:{luxury:3}, simple:{economy:2}, bold:{offroad:2,sport:1}, creative:{tech:2} },
+};
+
+const TYPE_LABELS = {
+  adventurer:'ماجراجوی قدرتمند',
+  family:'خانواده‌دوست وقور',
+  urbanpro:'حرفه‌ای شهری',
+  elite:'نخبه موفق',
+  balanced:'متعادل هوشمند',
+  techie:'آینده‌نگر تکنو',
+  quality:'کیفیت‌دوست آرام',
+  trendy:'خلاق و ترندی',
+  sporty:'اسپرت‌پسند خاص',
+};
+
+const PALETTE = [
+  ['#8B4513','#D2691E'],
+  ['#2F4F2F','#3CB371'],
+  ['#1a3a5c','#2e6da4'],
+  ['#1a1a1a','#4a4a4a'],
+  ['#2e6b5e','#4ab5a0'],
+  ['#1a4a7c','#2e82c8'],
+  ['#2d5a3d','#4a9e6a'],
+  ['#5c2d6e','#9e4abf'],
+  ['#6e1a1a','#bf2a2a'],
+];
+
+const DEFAULT_DIMS = {
+  luxury:5,
+  offroad:5,
+  family:5,
+  tech:5,
+  economy:5,
+  sport:5
+};
+
+function buildCarTypesFromDB() {
+  const types = {};
+
+  CarIQDB.getAll().forEach((car, i) => {
+
+    const [cf, ct] = PALETTE[i % PALETTE.length];
+
+    types[car.id] = {
+      id: car.id,
+      emoji: car.personality?.emoji || '🚗',
+      name: car.name,
+      type_name: TYPE_LABELS[car.personality?.type] || car.tag || 'خاص خودت',
+      desc: car.personality?.desc || car.fun_fact || '',
+      traits: (car.hints || []).slice(0, 4),
+      color_from: cf,
+      color_to: ct,
+      radar: car.dims || DEFAULT_DIMS,
+      dims: car.dims || DEFAULT_DIMS,
+    };
+
+  });
+
+  return types;
+}
+
+/* ═══════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════ */
+let state = {
+  qIndex: 0,
+  scores: {},
+  resultCar: null,
+  canvas: null,
+};
+
+/* ═══════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  // اول از شیت آپدیت بگیر، بعد اجازه بده بازی شروع شه
+  await CarIQDB.syncFromSheet();
+
+  // init dims accumulator
+  state.dimsWanted = { luxury:0, offroad:0, family:0, tech:0, economy:0, sport:0 };
+
+  // start button
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  // track
+  CarIQLeads.trackGameStart('personality');
+});
+
+/* ═══════════════════════════════════════
+   QUIZ
+   ═══════════════════════════════════════ */
+function startQuiz() {
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function renderQuestion() {
+  const root  = document.getElementById('quiz-content');
+  const hRoot = document.getElementById('quiz-header');
+  const q     = QUESTIONS[state.qIndex];
+  const pct   = (state.qIndex / QUESTIONS.length) * 100;
+
+  // header
+  hRoot.innerHTML = '';
+  const { header, score } = CarIQShared.buildGameHeader({
+    title: 'کدوم ماشین تویی؟',
+    sub: `سوال ${state.qIndex + 1} از ${QUESTIONS.length}`,
+    onBack: () => { if (confirm('از تست خارج بشی؟')) window.location.href='../../index.html'; },
+  });
+  hRoot.appendChild(header);
+
+  // content
+  root.innerHTML = '';
+  root.appendChild(CarIQShared.buildProgress(state.qIndex, QUESTIONS.length));
+
+  const card = CarIQShared.el('div', { class: 'q-card pop-in' });
+
+  const qNum = CarIQShared.el('div', { class: 'q-number' },
+    `سوال ${state.qIndex + 1} از ${QUESTIONS.length}`
+  );
+  const qText = CarIQShared.el('div', { class: 'q-text' }, q.q);
+
+  const opts = CarIQShared.el('div', { class: 'q-options' });
+  q.opts.forEach((opt, i) => {
+    const b = CarIQShared.el('div', { class: 'q-opt' },
+      CarIQShared.el('span', { class: 'q-opt-icon' }, opt.i),
+      CarIQShared.el('span', { class: 'q-opt-text' }, opt.t),
+    );
+    b.addEventListener('click', () => selectOption(opt, b, opts));
+    opts.appendChild(b);
+  });
+
+  card.append(qNum, qText, opts);
+  root.appendChild(card);
+}
+
+function selectOption(opt, el, opts) {
+  // visual feedback
+  [...opts.children].forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  // score (بر اساس dims)
+  Object.entries(opt.profile || {}).forEach(([key, val]) => {
+    const weights = (PROFILE_DIMS_WEIGHTS[key] || {})[val] || {};
+    Object.entries(weights).forEach(([dim, w]) => {
+      state.dimsWanted[dim] = (state.dimsWanted[dim] || 0) + w;
+    });
+  });
+
+  // profile
+  CarIQLeads.mergeProfile(opt.profile || {});
+
+  // next
+  setTimeout(() => {
+    state.qIndex++;
+    if (state.qIndex >= QUESTIONS.length) showResult();
+    else renderQuestion();
+  }, 400);
+}
+
+/* ═══════════════════════════════════════
+   RESULT
+   ═══════════════════════════════════════ */
+function showResult() {
+  const CAR_TYPES = buildCarTypesFromDB();
+  const DIM_KEYS = ['luxury','offroad','family','tech','economy','sport'];
+  const sorted = CarIQDB.getAll().map(c => {
+    const dims = c.dims || DEFAULT_DIMS;
+    const score = DIM_KEYS.reduce((s, k) => s + (dims[k] || 0) * (state.dimsWanted[k] || 0), 0);
+    return [c.id, score];
+  }).sort((a, b) => b[1] - a[1]);
+  const [winId] = sorted[0];
+  const car = CAR_TYPES[winId];
+  state.resultCar = car;
+
+  // track
+  CarIQLeads.trackGameEnd('personality', car.name);
+  CarIQLeads.mergeProfile({ persResult: winId, persCar: car.name });
+
+  showScreen('screen-result');
+  const root = document.getElementById('result-content');
+  root.innerHTML = '';
+
+  // ── draw canvas card ──
+  const canvasWrap = buildShareCardCanvas(car);
+  root.appendChild(canvasWrap);
+
+  // ── result hero text ──
+  const hero = CarIQShared.el('div', { class: 'result-hero pop-in' });
+
+  const carImg = CarIQDB.getById(car.id);
+  if (carImg?.img) {
+    const ci = CarIQShared.el('img', { class: 'result-car-img', src: carImg.img, alt: car.name });
+    ci.onerror = () => ci.remove();
+    hero.appendChild(ci);
+  }
+
+  const total = sorted.reduce((s,[,v]) => s+v, 0);
+  const topPct = total > 0 ? Math.round(sorted[0][1] / total * 100) : 0;
+
+  const ring = CarIQShared.buildResultRing(topPct);
+  hero.appendChild(ring);
+  hero.appendChild(CarIQShared.el('div', { class: 'result-title' }, `${car.emoji} ${car.name}`));
+
+  const badge = CarIQShared.el('span', { class: 'pill pill-gold', style: { marginBottom:'10px', display:'inline-flex' } }, car.type_name);
+  hero.appendChild(badge);
+  hero.appendChild(CarIQShared.el('div', { class: 'result-sub' }, car.desc));
+
+  // traits
+  const traits = CarIQShared.el('div', { class: 'traits' });
+  car.traits.forEach(t => {
+    traits.appendChild(CarIQShared.el('span', { class: 'trait-chip' }, t));
+  });
+  hero.appendChild(traits);
+
+  // match bars
+  const matchSec = CarIQShared.el('div', { class: 'match-section' });
+  matchSec.appendChild(CarIQShared.el('div', { class: 'match-title' }, '📊 تطابق شخصیت با ماشین‌ها'));
+  sorted.slice(0, 4).forEach(([id, val]) => {
+    const c = CAR_TYPES[id]; if (!c) return;
+    const pct = total > 0 ? Math.round(val / total * 100) : 0;
+    const row = CarIQShared.el('div', { class: 'match-row' });
+    const hdr = CarIQShared.el('div', { class: 'match-header' });
+    hdr.appendChild(CarIQShared.el('span', { class: 'match-car-name' }, `${c.emoji} ${c.name}`));
+    hdr.appendChild(CarIQShared.el('span', { class: 'match-pct-val' }, pct + '%'));
+    const track = CarIQShared.el('div', { class: 'match-track' });
+    const fill  = CarIQShared.el('div', { class: 'match-fill' });
+    track.appendChild(fill);
+    row.append(hdr, track);
+    matchSec.appendChild(row);
+    setTimeout(() => { fill.style.width = pct + '%'; }, 100);
+  });
+  hero.appendChild(matchSec);
+
+  // radar
+  hero.appendChild(buildRadar(car.radar));
+
+  root.appendChild(hero);
+
+  // CTA
+  const cfg = CarIQConfig.get();
+  root.appendChild(CarIQShared.buildLeadBox({
+    source: 'personality',
+    resultText: car.name,
+    ctaMsg: `سلام! تو تست شخصیت CarIQ نتیجه‌ام ${car.name} (${car.type_name}) شد. می‌خوام درباره واردات مشورت کنم.`,
+    sharePayload: {
+      emoji: car.emoji,
+      text: `تو تست «کدوم ماشین تویی؟» نتیجه‌ام شد: ${car.name} (${car.type_name}) — تو هم ببین ماشین تو کیه 🚗`,
+    },
+  }));
+
+  // play again
+  const pa = CarIQShared.el('button', { class: 'btn btn-outline mt12' }, '🔄 دوباره تست کن');
+  pa.addEventListener('click', () => {
+    state = { qIndex:0, dimsWanted:{ luxury:0, offroad:0, family:0, tech:0, economy:0, sport:0 }, resultCar:null, canvas:null };
+    showScreen('screen-intro');
+  });
+  root.appendChild(pa);
+
+  // setup share modal
+  setupShareModal(car);
+}
+
+/* ═══════════════════════════════════════
+   CANVAS SHARE CARD (16:9)
+   ═══════════════════════════════════════ */
+function buildShareCardCanvas(car) {
+  const W = 800, H = 450;   // 16:9
+  const canvas = document.createElement('canvas');
+  canvas.id = 'share-canvas';
+  canvas.width = W; canvas.height = H;
+  canvas.style.cssText = 'width:100%;height:auto;display:block;border-radius:14px;';
+
+  const ctx = canvas.getContext('2d');
+
+  // background gradient
+  const grd = ctx.createLinearGradient(0, 0, W, H);
+  grd.addColorStop(0, car.color_from);
+  grd.addColorStop(1, car.color_to);
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  // subtle grain
+  ctx.globalAlpha = 0.04;
+  for (let i = 0; i < 8000; i++) {
+    ctx.fillStyle = Math.random() > .5 ? '#fff' : '#000';
+    ctx.fillRect(Math.random()*W, Math.random()*H, 1, 1);
+  }
+  ctx.globalAlpha = 1;
+
+  // left dark overlay
+  const ov = ctx.createLinearGradient(0,0,W*0.55,0);
+  ov.addColorStop(0, 'rgba(0,0,0,.65)');
+  ov.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = ov;
+  ctx.fillRect(0,0,W,H);
+
+  // car image (async — draw placeholder first)
+  const carData = CarIQDB.getById(car.id);
+  if (carData?.img) {
+    const imgEl = new Image();
+    imgEl.crossOrigin = 'anonymous';
+    imgEl.onload = () => {
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      // draw on right side
+      const iH = H, iW = iH * 16/9;
+      ctx.drawImage(imgEl, W - iW*0.7, 0, iW*0.7, iH);
+      ctx.restore();
+      // re-draw text on top
+      drawCardText(ctx, car, W, H);
+    };
+    imgEl.src = carData.img;
+  }
+  drawCardText(ctx, car, W, H);
+
+  state.canvas = canvas;
+  const wrap = document.createElement('div');
+  wrap.className = 'share-card-wrap';
+  wrap.appendChild(canvas);
+  return wrap;
+}
+
+function drawCardText(ctx, car, W, H) {
+  const pad = 40;
+  // brand
+  ctx.font = 'bold 18px Vazirmatn, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.textAlign = 'right';
+  ctx.fillText('CarIQ — تست شخصیت', W - pad, pad + 12);
+
+  // emoji
+  ctx.font = '64px serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(car.emoji, W - pad, H * 0.38);
+
+  // type name
+  ctx.font = 'bold 22px Vazirmatn, sans-serif';
+  ctx.fillStyle = 'rgba(255,220,100,0.9)';
+  ctx.textAlign = 'right';
+  ctx.fillText(car.type_name, W - pad, H * 0.52);
+
+  // car name
+  ctx.font = 'bold 30px Vazirmatn, sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'right';
+  ctx.fillText(car.name, W - pad, H * 0.65);
+
+  // desc (wrap)
+  ctx.font = '16px Vazirmatn, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  const descLines = wrapText(ctx, car.desc.slice(0, 80), W * 0.55, 16);
+  descLines.forEach((line, i) => {
+    ctx.fillText(line, W - pad, H * 0.75 + i * 22);
+  });
+
+  // watermark
+  ctx.font = 'bold 14px Vazirmatn, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.textAlign = 'left';
+  ctx.fillText('@pouriabh | cariq.ir', pad, H - 20);
+}
+
+function wrapText(ctx, text, maxWidth, fontSize) {
+  const words = text.split(' '), lines = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line); line = w;
+    } else { line = test; }
+  }
+  if (line) lines.push(line);
+  return lines.slice(0, 2);
+}
+
+/* ═══════════════════════════════════════
+   RADAR CHART
+   ═══════════════════════════════════════ */
+function buildRadar(dims) {
+  const W = 200, H = 200, R = 80, CX = W/2, CY = H/2;
+  const labels  = ['لوکس','آفرود','خانواده','تکنو','اقتصادی','اسپرت'];
+  const keys    = ['luxury','offroad','family','tech','economy','sport'];
+  const maxVal  = 10;
+  const angles  = keys.map((_, i) => (Math.PI * 2 * i / keys.length) - Math.PI/2);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  canvas.style.cssText = 'width:200px;height:200px;';
+  const ctx = canvas.getContext('2d');
+
+  // grid
+  [.2,.4,.6,.8,1].forEach(r => {
+    ctx.beginPath();
+    angles.forEach((a,i) => {
+      const x = CX + Math.cos(a) * R * r;
+      const y = CY + Math.sin(a) * R * r;
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(184,134,11,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // axes
+  angles.forEach(a => {
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.lineTo(CX + Math.cos(a)*R, CY + Math.sin(a)*R);
+    ctx.strokeStyle = 'rgba(184,134,11,0.15)';
+    ctx.stroke();
+  });
+
+  // data polygon
+  ctx.beginPath();
+  keys.forEach((k, i) => {
+    const val = (dims[k] || 0) / maxVal;
+    const x = CX + Math.cos(angles[i]) * R * val;
+    const y = CY + Math.sin(angles[i]) * R * val;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle   = 'rgba(184,134,11,0.2)';
+  ctx.strokeStyle = 'rgba(184,134,11,0.8)';
+  ctx.lineWidth   = 2;
+  ctx.fill(); ctx.stroke();
+
+  // labels
+  ctx.font = '10px Vazirmatn, sans-serif';
+  ctx.fillStyle = 'rgba(44,24,16,0.7)';
+  ctx.textAlign = 'center';
+  labels.forEach((lbl, i) => {
+    const x = CX + Math.cos(angles[i]) * (R + 16);
+    const y = CY + Math.sin(angles[i]) * (R + 16) + 4;
+    ctx.fillText(lbl, x, y);
+  });
+
+  const wrap = document.createElement('div');
+  wrap.className = 'radar-wrap';
+  wrap.appendChild(canvas);
+  return wrap;
+}
+
+/* ═══════════════════════════════════════
+   SHARE MODAL
+   ═══════════════════════════════════════ */
+function setupShareModal(car) {
+  const cfg = CarIQConfig.get();
+  const shareText = `${car.emoji} من تو تست «کدوم ماشین تویی؟» ${car.name} (${car.type_name}) شدم!\nتو هم ببین ماشین تو کیه 🚗\n\nCarIQ | ${cfg.contact.telegram}`;
+
+  // inject canvas preview
+  const prevWrap = document.getElementById('share-preview-wrap');
+  if (state.canvas) {
+    const clone = document.createElement('canvas');
+    clone.width = state.canvas.width; clone.height = state.canvas.height;
+    clone.style.cssText = 'width:100%;height:auto;border-radius:10px;';
+    clone.getContext('2d').drawImage(state.canvas, 0, 0);
+    prevWrap.innerHTML = ''; prevWrap.appendChild(clone);
+  }
+
+  // open
+  document.querySelectorAll('[data-open-share]').forEach(b => b.addEventListener('click', () => {
+    document.getElementById('share-modal').classList.add('open');
+  }));
+
+  // find the btn built by lead-box
+  setTimeout(() => {
+    const shareBtns = document.querySelectorAll('.btn-share');
+    shareBtns.forEach(b => {
+      b.addEventListener('click', () => document.getElementById('share-modal').classList.add('open'));
+    });
+  }, 300);
+
+  // download
+  document.getElementById('sh-download').addEventListener('click', () => {
+    if (!state.canvas) return;
+    const link = document.createElement('a');
+    link.download = `cariq_personality_${car.id}.png`;
+    link.href = state.canvas.toDataURL('image/png');
+    link.click();
+    document.getElementById('sh-dl-sub').textContent = '✅ دانلود شد! در استوری بذار';
+  });
+
+  // telegram
+  document.getElementById('sh-tg').addEventListener('click', () => {
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(shareText)}`, '_blank');
+  });
+
+  // whatsapp
+  document.getElementById('sh-wa').addEventListener('click', () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + location.href)}`, '_blank');
+  });
+
+  // copy
+  document.getElementById('sh-copy').addEventListener('click', () => {
+    navigator.clipboard?.writeText(shareText + '\n' + location.href).catch(() => {});
+    document.getElementById('sh-copy-sub').textContent = '✅ کپی شد!';
+    setTimeout(() => document.getElementById('sh-copy-sub').textContent = 'کپی نتیجه + لینک', 2500);
+  });
+
+  // close
+  document.getElementById('share-modal-close').addEventListener('click', () => {
+    document.getElementById('share-modal').classList.remove('open');
+  });
+  document.getElementById('share-modal').addEventListener('click', e => {
+    if (e.target.id === 'share-modal') e.target.classList.remove('open');
+  });
+}
+</script>
+</body>
+</html>

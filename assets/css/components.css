@@ -1,0 +1,167 @@
+/* ════════════════════════════════════
+   CarIQ UI Kit — کامپوننت‌های مشترک
+   ════════════════════════════════════ */
+
+/* ── کارت ── */
+.card { background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r); padding:18px; box-shadow:var(--shadow-sm); }
+.card+.card { margin-top:10px; }
+.card-gold { border-color:rgba(184,134,11,0.3); }
+
+/* ── تیتر بخش ── */
+.section-label {
+  font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--c-muted2); display:flex; align-items:center; gap:8px; margin-bottom:12px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--c-border); }
+
+/* ── دکمه‌ها ── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:13px 18px; border-radius:var(--r-sm); font-weight:700; font-size:14px;
+  width:100%; cursor:pointer; border:none;
+  transition:transform var(--t-fast), box-shadow var(--t-med), opacity var(--t-med);
+  position:relative; overflow:hidden;
+}
+.btn:active { transform:scale(0.97); }
+.btn[disabled] { opacity:.4; pointer-events:none; }
+
+.btn-gold   { background:linear-gradient(135deg,var(--c-gold2),var(--c-gold)); color:var(--c-on-gold); box-shadow:var(--shadow-gold); }
+.btn-gold:hover { box-shadow:0 8px 32px rgba(184,134,11,0.5); transform:translateY(-1px); }
+.btn-accent { background:linear-gradient(135deg,var(--c-accent2),var(--c-accent)); color:#fff8f0; box-shadow:var(--shadow-md); }
+.btn-tg     { background:linear-gradient(135deg,#3ea8e0,#2196d3); color:#fff; box-shadow:0 4px 20px rgba(33,150,211,0.4); }
+.btn-phone  { background:linear-gradient(135deg,var(--c-green),#1f5c3a); color:#fff; }
+.btn-share  { background:linear-gradient(135deg,#e1306c,#833ab4); color:#fff; }
+.btn-outline { background:transparent; border:1.5px solid var(--c-border2); color:var(--c-muted); }
+.btn-outline:hover { border-color:var(--c-gold); color:var(--c-gold); }
+.btn-sm { padding:10px 14px; font-size:12px; }
+.btn-row { display:flex; gap:8px; }
+.btn-row>.btn { flex:1; }
+
+/* ── پیل / بج ── */
+.pill { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; }
+.pill-gold   { background:rgba(184,134,11,0.12); color:var(--c-gold);   border:1px solid rgba(184,134,11,0.25); }
+.pill-green  { background:rgba(45,122,79,0.10);  color:var(--c-green);  border:1px solid rgba(45,122,79,0.20);  }
+.pill-red    { background:rgba(184,50,50,0.10);  color:var(--c-red);    border:1px solid rgba(184,50,50,0.20);  }
+.pill-muted  { background:var(--c-bg3);          color:var(--c-muted);  border:1px solid var(--c-border);       }
+.pill-accent { background:rgba(124,74,30,0.10);  color:var(--c-accent); border:1px solid rgba(124,74,30,0.20);  }
+
+/* ── نوار پیشرفت ── */
+.progress-wrap { margin-bottom:14px; }
+.progress-meta { display:flex; justify-content:space-between; font-size:12px; color:var(--c-muted); margin-bottom:6px; }
+.progress-track { height:6px; background:var(--c-bg3); border-radius:999px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--c-gold2),var(--c-gold3)); border-radius:999px; transition:width .45s cubic-bezier(.4,0,.2,1); }
+
+/* ── HUD ── */
+.hud { display:flex; gap:8px; margin-bottom:14px; }
+.hud-item { flex:1; padding:10px 8px; background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r-sm); text-align:center; }
+.hud-item .hv { font-size:20px; font-weight:900; color:var(--c-text); }
+.hud-item .hl { font-size:10px; color:var(--c-muted2); margin-top:1px; }
+.hud-item.ok  .hv { color:var(--c-green); }
+.hud-item.bad .hv { color:var(--c-red); }
+.hud-item.pts .hv { color:var(--c-gold); }
+
+/* ── هدر بازی ── */
+.game-header {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 0 12px;
+  border-bottom:1px solid var(--c-border);
+  margin-bottom:16px;
+  position:sticky; top:0; background:var(--c-bg); z-index:20;
+}
+.back-btn {
+  width:36px; height:36px; background:var(--c-card2); border-radius:var(--r-xs);
+  display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; flex-shrink:0;
+}
+.back-btn:hover { background:var(--c-bg3); }
+.game-header-info { flex:1; }
+.game-header-title { font-size:14px; font-weight:800; }
+.game-header-sub { font-size:11px; color:var(--c-muted); margin-top:1px; }
+.score-pill { background:rgba(184,134,11,0.12); border:1px solid rgba(184,134,11,0.25); color:var(--c-gold); border-radius:999px; padding:5px 12px; font-size:12px; font-weight:800; white-space:nowrap; }
+
+/* ── قهرمان نتیجه ── */
+.result-hero {
+  background:linear-gradient(160deg,#2c1810 0%,#4a3020 100%);
+  border-radius:var(--r-lg); padding:24px 18px; text-align:center;
+  margin-bottom:12px; position:relative; overflow:hidden;
+}
+.result-hero::before {
+  content:''; position:absolute; top:-40%; left:-20%; width:140%; height:200%;
+  background:radial-gradient(ellipse at 50% 30%,rgba(184,134,11,0.15),transparent 65%);
+  pointer-events:none;
+}
+.result-ring {
+  width:108px; height:108px; border-radius:50%;
+  background:conic-gradient(var(--c-gold3) var(--pct,0deg), rgba(255,255,255,0.1) 0deg);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 14px; position:relative;
+}
+.result-ring::before { content:''; width:80px; height:80px; border-radius:50%; background:#3a2510; position:absolute; }
+.result-ring-inner { position:relative; text-align:center; }
+.result-ring-num { font-size:24px; font-weight:900; color:var(--c-gold3); display:block; }
+.result-ring-lbl { font-size:10px; color:rgba(255,255,255,0.4); letter-spacing:.5px; }
+.result-title { font-size:21px; font-weight:900; color:#fff; margin-bottom:5px; position:relative; }
+.result-sub   { font-size:13px; color:rgba(255,255,255,0.55); line-height:1.7; position:relative; }
+.result-car-img { width:100%; border-radius:var(--r-sm); margin-bottom:12px; object-fit:cover; max-height:160px; }
+.stat-row { display:flex; gap:7px; margin:12px 0; }
+.stat-box { flex:1; background:rgba(255,255,255,0.07); border-radius:var(--r-sm); padding:10px 5px; text-align:center; border:1px solid rgba(255,255,255,0.07); }
+.stat-box .sv { font-size:19px; font-weight:900; color:var(--c-gold3); display:block; }
+.stat-box .sl { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.score-chips { display:flex; gap:5px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+.chip { padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700; border:1px solid; }
+.chip-ok  { background:rgba(45,122,79,0.15);   border-color:rgba(45,122,79,0.3);   color:var(--c-green); }
+.chip-no  { background:rgba(184,50,50,0.12);   border-color:rgba(184,50,50,0.3);   color:var(--c-red);   }
+.chip-mid { background:rgba(184,134,11,0.12);  border-color:rgba(184,134,11,0.3);  color:var(--c-gold);  }
+
+/* ── لید باکس ── */
+.lead-box {
+  background:linear-gradient(135deg,rgba(184,134,11,0.08),rgba(124,74,30,0.04));
+  border:1px dashed rgba(184,134,11,0.3); border-radius:var(--r);
+  padding:20px; margin-top:16px;
+}
+.lead-box h3 { font-size:16px; font-weight:800; color:var(--c-accent); margin-bottom:4px; }
+.lead-box p  { font-size:13px; color:var(--c-muted); margin-bottom:14px; line-height:1.65; }
+.lead-box p strong { color:var(--c-text2); }
+.lead-btn-row { display:flex; gap:8px; margin-bottom:10px; }
+.lead-btn-row .btn { font-size:12px; padding:11px; }
+.lead-divider { text-align:center; font-size:11px; color:var(--c-muted2); margin:10px 0; position:relative; }
+.lead-divider::before,.lead-divider::after { content:''; position:absolute; top:50%; width:38%; height:1px; background:var(--c-border); }
+.lead-divider::before { right:0; }
+.lead-divider::after  { left:0; }
+.inp { width:100%; padding:12px 14px; background:var(--c-surface); border:1.5px solid var(--c-border2); border-radius:var(--r-sm); color:var(--c-text); font-size:14px; font-family:inherit; transition:border-color var(--t-fast); margin-bottom:8px; }
+.inp::placeholder { color:var(--c-muted2); }
+.inp:focus { outline:none; border-color:var(--c-gold); }
+.lead-success { padding:14px; text-align:center; font-size:14px; font-weight:600; background:rgba(45,122,79,0.10); border:1px solid rgba(45,122,79,0.25); border-radius:var(--r-sm); color:var(--c-green); }
+
+/* ── مدال ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(44,24,16,0.55); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity var(--t-med); }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal-sheet { width:100%; max-width:480px; margin:0 auto; background:var(--c-surface); border-radius:var(--r-xl) var(--r-xl) 0 0; padding:22px 18px 40px; transform:translateY(100%); transition:transform var(--t-med) var(--ease-out); }
+.modal-overlay.open .modal-sheet { transform:none; }
+.modal-handle { width:40px; height:4px; background:var(--c-bg3); border-radius:999px; margin:0 auto 18px; }
+.modal-title { font-size:19px; font-weight:900; text-align:center; margin-bottom:4px; }
+.modal-sub   { font-size:12px; color:var(--c-muted); text-align:center; margin-bottom:18px; line-height:1.6; }
+.modal-close { margin-top:12px; width:100%; padding:12px; background:var(--c-card2); border-radius:var(--r-sm); font-size:13px; font-weight:600; color:var(--c-muted); cursor:pointer; font-family:inherit; border:none; }
+
+/* ── کانال‌های اشتراک‌گذاری ── */
+.share-preview { background:linear-gradient(135deg,#2c1810,#4a3020); border-radius:var(--r-sm); padding:16px; text-align:center; margin-bottom:14px; }
+.share-preview-emoji { font-size:36px; margin-bottom:6px; }
+.share-preview-text  { font-size:13px; color:rgba(255,255,255,0.85); font-weight:700; line-height:1.6; }
+.share-preview-brand { font-size:10px; color:rgba(255,255,255,0.3); margin-top:6px; letter-spacing:.5px; }
+.share-channels { display:flex; flex-direction:column; gap:8px; }
+.share-channel { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-card); border:1.5px solid var(--c-border); border-radius:var(--r-sm); cursor:pointer; transition:all var(--t-fast); }
+.share-channel:hover { border-color:var(--c-gold); background:var(--c-card2); }
+.share-channel-icon  { font-size:22px; width:36px; text-align:center; flex-shrink:0; }
+.share-channel-label { font-size:14px; font-weight:700; }
+.share-channel-sub   { font-size:11px; color:var(--c-muted); margin-top:1px; }
+
+/* ── دکمه‌های انتخاب بازی ── */
+.opt-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.opt-btn { padding:14px 10px; background:var(--c-card); border:1.5px solid var(--c-border); border-radius:var(--r-sm); color:var(--c-text); font-weight:700; font-size:13px; text-align:center; cursor:pointer; transition:all var(--t-fast); font-family:inherit; }
+.opt-btn:hover  { border-color:var(--c-gold2); background:var(--c-card2); }
+.opt-btn:active { transform:scale(0.97); }
+.opt-btn.correct { background:rgba(45,122,79,0.15);  border-color:var(--c-green); color:var(--c-green); }
+.opt-btn.wrong   { background:rgba(184,50,50,0.12);  border-color:var(--c-red);   color:var(--c-red);   }
+.opt-btn.close   { background:rgba(184,134,11,0.12); border-color:var(--c-gold);  color:var(--c-gold);  }
+
+/* ── پرواز امتیاز ── */
+.score-fly { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:36px; font-weight:900; color:var(--c-gold2); pointer-events:none; animation:flyUp .7s ease forwards; z-index:999; }

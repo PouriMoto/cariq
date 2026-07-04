@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap');
+
+/* ── ریست ── */
+*,*::before,*::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--c-bg);
+  color: var(--c-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  direction: rtl;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 600px 300px at 50% 0%, rgba(184,134,11,0.04), transparent 70%);
+}
+button { font-family:inherit; cursor:pointer; border:none; background:none; }
+input, textarea, select { font-family:inherit; }
+img { display:block; max-width:100%; }
+a { text-decoration:none; color:inherit; }
+
+/* ── پوسته اپ ── */
+.app { max-width:480px; margin:0 auto; min-height:100vh; position:relative; z-index:1; }
+
+/* ── صفحه‌ها ── */
+.screen { display:none; padding:0 14px 80px; animation:screenIn var(--t-med) var(--ease-out); }
+.screen.active { display:block; }
+@keyframes screenIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+
+/* ── ابزارها ── */
+.mt8{margin-top:8px}  .mt12{margin-top:12px}  .mt16{margin-top:16px}
+.mb8{margin-bottom:8px}  .flex{display:flex}  .gap8{gap:8px}
+.tc{text-align:center}  .hidden{display:none!important}
+.w100{width:100%}
+
+/* ── انیمیشن‌ها ── */
+@keyframes pop     { 0%{transform:scale(.8);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+@keyframes flyUp   { from{opacity:1;transform:translate(-50%,-50%)} to{opacity:0;transform:translate(-50%,-130%)} }
+@keyframes shake   { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+@keyframes pulse   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+@keyframes spin    { to{transform:rotate(360deg)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+.pop-in  { animation:pop .35s var(--ease-spring); }
+.shake   { animation:shake .4s ease; }
+.pulse   { animation:pulse 2s infinite; }
+.fade-in { animation:fadeIn var(--t-med) ease; }
