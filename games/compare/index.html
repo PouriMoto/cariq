@@ -380,6 +380,16 @@ function showResult() {
     ctaMsg: `سلام! تو بازی «کدوم گرون‌تره» ${ok} از ${ROUNDS} رو درست زدم. می‌خوام قیمت واقعی واردات رو بدونم 💰`,
     sharePayload: {
       emoji: emoji,
+      imgSrc: state.pair && state.pair.length ? state.pair[0].img : (CarIQDB.getAll()[0] || {}).img,
+      colorFrom: '#1a2f3a', colorTo: '#2c4a5c',
+      kicker: 'نتیجه‌ی بازی «کدوم گرون‌تره؟»',
+      title: `${state.score} امتیاز`,
+      subtitle: rank,
+      desc: `${ok} از ${ROUNDS} قیمت رو درست حدس زدم`,
+      stats: [
+        { val: ok, label: 'درست' },
+        { val: ROUNDS - ok, label: 'اشتباه' },
+      ],
       text: `تو بازی «کدوم گرون‌تره؟» ${ok} از ${ROUNDS} رو درست حدس زدم! تو بهتر می‌زنی؟ ⚖️`,
     },
   }));
