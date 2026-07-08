@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+  <meta name="description" content="کدوم گرون‌تره؟ — حدس بزن کدوم ماشین قیمت بالاتری داره | CarIQ"/>
+  <title>کدوم گرون‌تره؟ | CarIQ</title>
+  <link rel="stylesheet" href="../../assets/css/tokens.css"/>
+  <link rel="stylesheet" href="../../assets/css/base.css"/>
+  <link rel="stylesheet" href="../../assets/css/components.css"/>
+  <style>
+    /* ── Intro Screen ── */
+    .intro {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 20px; text-align: center;
+    }
+    .intro-icon { font-size: 72px; margin-bottom: 16px; animation: pop .5s var(--ease-spring); }
+    .intro-title {
+      font-size: 26px; font-weight: 900; margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--c-gold), var(--c-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .intro-sub { font-size: 14px; color: var(--c-muted); line-height: 1.8; margin-bottom: 28px; max-width: 340px; }
+    .intro-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+    .intro-meta { font-size: 12px; color: var(--c-muted2); margin-top: 14px; display: flex; gap: 16px; justify-content: center; }
+
+    /* ── Dots ── */
+    .dots-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 12px; }
+    .dot-step { height: 4px; border-radius: 4px; flex: 1; max-width: 46px; background: var(--c-bg3); transition: all .35s; }
+    .dot-step.done { background: var(--c-gold2); }
+    .dot-step.now  { background: var(--c-gold3); box-shadow: 0 0 6px var(--c-gold-glow); }
+
+    /* ── VS layout ── */
+    .compare-vs {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px;
+      align-items: center; margin-bottom: 12px;
+    }
+    .compare-card {
+      background: var(--c-card); border: 2px solid var(--c-border);
+      border-radius: var(--r); overflow: hidden;
+      cursor: pointer; transition: all .2s var(--ease-out);
+    }
+    .compare-card:not(.locked):hover { transform: translateY(-3px); box-shadow: var(--shadow-gold); border-color: var(--c-gold2); }
+    .compare-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+    .compare-card-body { padding: 10px; }
+    .compare-car-name { font-size: 12px; font-weight: 800; color: var(--c-text); }
+    .compare-car-tag { font-size: 10px; color: var(--c-muted); margin-top: 1px; }
+    .compare-card.correct-pick { border-color: var(--c-green); background: rgba(45,122,79,0.06); }
+    .compare-card.wrong-pick   { border-color: var(--c-red);   background: rgba(184,50,50,0.06); }
+    .compare-card.locked { cursor: default; pointer-events: none; }
+
+    .vs-badge {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--c-gold2), var(--c-gold));
+      color: var(--c-on-gold); font-weight: 900; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-gold); flex-shrink: 0;
+    }
+
+    .compare-hint { text-align: center; font-size: 12px; color: var(--c-muted); margin-bottom: 12px; }
+
+    /* ── Feedback ── */
+    .compare-feedback {
+      text-align: center; padding: 12px; border-radius: var(--r-sm);
+      font-size: 14px; font-weight: 700; margin-bottom: 10px;
+    }
+    .compare-feedback.ok  { background: rgba(45,122,79,0.1);  border: 1px solid rgba(45,122,79,0.25); color: var(--c-green); }
+    .compare-feedback.bad { background: rgba(184,50,50,0.08); border: 1px solid rgba(184,50,50,0.2);  color: var(--c-red); }
+
+    /* ── Price reveal ── */
+    .compare-price-reveal { display: flex; gap: 8px; margin-bottom: 12px; }
+    .price-reveal-box {
+      flex: 1; background: var(--c-card2); border: 1px solid var(--c-border);
+      border-radius: var(--r-sm); padding: 10px; text-align: center;
+    }
+    .price-reveal-box .pr-val { font-size: 14px; font-weight: 900; color: var(--c-gold); }
+    .price-reveal-box .pr-lbl { font-size: 10px; color: var(--c-muted); margin-top: 2px; }
+    .price-reveal-box.winner { border-color: var(--c-green); background: rgba(45,122,79,0.05); }
+    .price-reveal-box.winner .pr-val { color: var(--c-green); }
+
+    .result-wrap { padding: 0 0 40px; }
+
+    @media(max-width:360px) {
+      .compare-vs { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro">
+      <div class="intro-icon">⚖️</div>
+      <h1 class="intro-title">کدوم گرون‌تره؟</h1>
+      <p class="intro-sub">
+        ۸ دور — دو ماشین رو می‌بینی، حدس بزن کدوم قیمتش بالاتره<br>
+        بازار خودرو رو چقدر می‌شناسی؟
+      </p>
+      <div class="intro-chips">
+        <span class="pill pill-gold">⚡ سریع</span>
+        <span class="pill pill-accent">🧠 چالشی</span>
+        <span class="pill pill-muted">⏱️ ۲ دقیقه</span>
+      </div>
+      <button class="btn btn-gold" id="start-btn" style="max-width:280px;font-size:16px;padding:16px">
+        🚀 شروع بازی
+      </button>
+      <div class="intro-meta">
+        <span>🎯 ۸ دور</span>
+        <span>🏆 هر جواب درست ۱۰ امتیاز</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-header" id="game-header"></div>
+    <div id="game-content"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="result-wrap" id="result-content"></div>
+  </div>
+
+</div>
+
+<script src="../../core/config.js"></script>
+<script src="../../core/car-db.js"></script>
+<script src="../../core/shared.js"></script>
+<script src="../../core/lead-engine.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+/* ════════════════════════════════════════
+   GAME META
+   ════════════════════════════════════════ */
+window.GAME_META = {
+  id: 'compare',
+  name: 'کدوم گرون‌تره؟',
+  icon: '⚖️',
+  rounds: 8,
+  estimatedTime: '۲ دقیقه',
+  viralScore: 7,
+  leadQuality: 6,
+};
+
+const ROUNDS = 8;
+
+/* ════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════ */
+let state = {
+  idx: 0,
+  score: 0,
+  results: [],
+  answered: false,
+  pair: null,
+};
+
+function carPrice(car) {
+  if (car.price_iran) return car.price_iran;
+  if (Array.isArray(car.price_vals) && car.price_vals.length) {
+    return Math.round(car.price_vals.reduce((s, v) => s + v, 0) / car.price_vals.length);
+  }
+  return 0;
+}
+
+function resetState() {
+  state = { idx: 0, score: 0, results: [], answered: false, pair: null };
+}
+
+function pickPair() {
+  const all = CarIQDB.getAll().filter(c => carPrice(c) > 0);
+  const shuffled = CarIQShared.shuffle(all);
+  // avoid pairs with (near-)identical price so there's always a clear answer
+  for (let i = 0; i < shuffled.length; i++) {
+    for (let j = i + 1; j < shuffled.length; j++) {
+      const a = shuffled[i], b = shuffled[j];
+      const pa = carPrice(a), pb = carPrice(b);
+      if (Math.abs(pa - pb) / Math.max(pa, pb) > 0.1) return [a, b];
+    }
+  }
+  return [shuffled[0], shuffled[1]];
+}
+
+/* ════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  CarIQLeads.trackGameStart('compare');
+});
+
+function startGame() {
+  resetState();
+  const testPool = CarIQDB.getAll().filter(c => carPrice(c) > 0);
+  if (testPool.length < 2) {
+    alert('برای این بازی حداقل به ۲ خودرو با قیمت ثبت‌شده نیاز داریم. لطفاً از پنل ادمین قیمت‌ها رو تکمیل کن.');
+    return;
+  }
+  showScreen('screen-game');
+  renderRound();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ════════════════════════════════════════
+   ROUND RENDER
+   ════════════════════════════════════════ */
+function renderRound() {
+  if (state.idx >= ROUNDS) return showResult();
+  if (!state.pair) state.pair = pickPair();
+  const [a, b] = state.pair;
+
+  // header
+  const hRoot = document.getElementById('game-header');
+  hRoot.innerHTML = '';
+  const { header, score } = CarIQShared.buildGameHeader({
+    title: '⚖️ کدوم گرون‌تره؟',
+    sub: `دور ${state.idx + 1} از ${ROUNDS}`,
+    onBack: () => { if (confirm('از بازی خارج بشی؟')) window.location.href = '../../index.html'; },
+  });
+  score.textContent = `⭐ ${state.score}`;
+  hRoot.appendChild(header);
+
+  // content
+  const root = document.getElementById('game-content');
+  root.innerHTML = '';
+
+  root.appendChild(CarIQShared.buildProgress(state.idx, ROUNDS));
+
+  // HUD
+  const ok = state.results.filter(r => r.ok).length;
+  const bad = state.results.filter(r => !r.ok).length;
+  root.appendChild(CarIQShared.el('div', { class: 'hud' },
+    CarIQShared.el('div', { class: 'hud-item ok' },
+      CarIQShared.el('div', { class: 'hv' }, String(ok)),
+      CarIQShared.el('div', { class: 'hl' }, 'درست')),
+    CarIQShared.el('div', { class: 'hud-item bad' },
+      CarIQShared.el('div', { class: 'hv' }, String(bad)),
+      CarIQShared.el('div', { class: 'hl' }, 'اشتباه')),
+    CarIQShared.el('div', { class: 'hud-item pts' },
+      CarIQShared.el('div', { class: 'hv' }, String(state.score)),
+      CarIQShared.el('div', { class: 'hl' }, 'امتیاز')),
+  ));
+
+  // dots
+  const dotsRow = CarIQShared.el('div', { class: 'dots-row' });
+  for (let i = 0; i < ROUNDS; i++) {
+    dotsRow.appendChild(CarIQShared.el('div', {
+      class: 'dot-step' + (i < state.idx ? ' done' : i === state.idx ? ' now' : ''),
+    }));
+  }
+  root.appendChild(dotsRow);
+
+  // VS cards
+  const vs = CarIQShared.el('div', { class: 'compare-vs pop-in' });
+  [a, b].forEach((car, ci) => {
+    const img = CarIQShared.el('img', { src: car.img, alt: car.name });
+    img.onerror = () => { img.src = CarIQShared.svgPlaceholder(car.name); };
+    const card = CarIQShared.el('div', { class: 'compare-card' },
+      img,
+      CarIQShared.el('div', { class: 'compare-card-body' },
+        CarIQShared.el('div', { class: 'compare-car-name' }, car.name),
+        CarIQShared.el('div', { class: 'compare-car-tag' }, (car.year ? car.year + ' — ' : '') + (car.origin || car.brand || '')),
+      ),
+    );
+    card.addEventListener('click', () => { if (!state.answered) answer(car, a, b); });
+    vs.appendChild(card);
+    if (ci === 0) vs.appendChild(CarIQShared.el('div', { class: 'vs-badge' }, 'VS'));
+  });
+  root.appendChild(vs);
+
+  root.appendChild(CarIQShared.el('div', { class: 'compare-hint' }, '👆 روی ماشینی که فکر می‌کنی گرون‌تره بزن'));
+}
+
+/* ════════════════════════════════════════
+   ANSWER
+   ════════════════════════════════════════ */
+function answer(picked, a, b) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const pa = carPrice(a), pb = carPrice(b);
+  const expensive = pa > pb ? a : b;
+  const ok = picked.id === expensive.id;
+  const pts = ok ? 10 : 0;
+  state.score += pts;
+  state.results.push({ a: a.name, b: b.name, ok, picked: picked.name, correct: expensive.name });
+
+  const root = document.getElementById('game-content');
+  const cards = root.querySelectorAll('.compare-card');
+  cards.forEach((card, i) => {
+    card.classList.add('locked');
+    const car = i === 0 ? a : b;
+    card.classList.add(car.id === expensive.id ? 'correct-pick' : 'wrong-pick');
+  });
+
+  const fb = CarIQShared.el('div', { class: 'compare-feedback ' + (ok ? 'ok' : 'bad') },
+    ok ? `✅ درسته! +${pts} امتیاز` : `❌ اشتباه! ${expensive.name} گرون‌تره`);
+
+  const priceReveal = CarIQShared.el('div', { class: 'compare-price-reveal' });
+  [a, b].forEach(car => {
+    const p = carPrice(car);
+    const box = CarIQShared.el('div', { class: 'price-reveal-box' + (car.id === expensive.id ? ' winner' : '') },
+      CarIQShared.el('div', { class: 'pr-val' }, car.price_label || CarIQUtils.numFa(p) + ' م'),
+      CarIQShared.el('div', { class: 'pr-lbl' }, car.name),
+    );
+    priceReveal.appendChild(box);
+  });
+
+  const hintEl = root.querySelector('.compare-hint');
+  hintEl.replaceWith(fb);
+  fb.insertAdjacentElement('afterend', priceReveal);
+
+  const nextBtn = CarIQShared.el('button', { class: 'btn btn-gold mt8' }, 'سوال بعدی →');
+  nextBtn.addEventListener('click', () => {
+    state.idx++;
+    state.answered = false;
+    state.pair = null;
+    renderRound();
+  });
+  root.appendChild(nextBtn);
+
+  if (ok) CarIQShared.showScoreFly(pts);
+}
+
+/* ════════════════════════════════════════
+   RESULT
+   ════════════════════════════════════════ */
+function showResult() {
+  const ok = state.results.filter(r => r.ok).length;
+  const pct = Math.round((ok / ROUNDS) * 100);
+
+  let emoji, rank, rankCls;
+  if (pct >= 80) { emoji = '🏆'; rank = 'کارشناس بازار!'; rankCls = 'pill-gold'; }
+  else if (pct >= 50) { emoji = '👍'; rank = 'بد نبودی!'; rankCls = 'pill-green'; }
+  else { emoji = '😅'; rank = 'بازار رو نمی‌شناسی!'; rankCls = 'pill-muted'; }
+
+  CarIQLeads.trackGameEnd('compare', `${ok}/${ROUNDS}`);
+  CarIQLeads.mergeProfile({ compareScore: state.score, compareAccuracy: pct });
+
+  showScreen('screen-result');
+  const root = document.getElementById('result-content');
+  root.innerHTML = '';
+
+  const hero = CarIQShared.el('div', { class: 'result-hero pop-in' });
+  hero.appendChild(CarIQShared.buildResultRing(pct));
+  hero.appendChild(CarIQShared.el('div', { class: 'result-title' }, `${emoji} ${state.score} امتیاز`));
+  hero.appendChild(CarIQShared.el('span', { class: 'pill ' + rankCls, style: { marginBottom: '10px', display: 'inline-flex' } }, rank));
+  hero.appendChild(CarIQShared.el('div', { class: 'result-sub' }, `${ok} از ${ROUNDS} درست حدس زدی`));
+  hero.appendChild(CarIQShared.buildStatRow([
+    [ok, 'درست'],
+    [ROUNDS - ok, 'اشتباه'],
+    [state.score, 'امتیاز کل'],
+  ]));
+
+  const chips = CarIQShared.el('div', { class: 'score-chips' });
+  state.results.forEach((r, i) => {
+    chips.appendChild(CarIQShared.el('span', { class: 'chip ' + (r.ok ? 'chip-ok' : 'chip-no') },
+      `${i + 1}. ${r.ok ? '✓' : '✗'}`));
+  });
+  hero.appendChild(chips);
+
+  root.appendChild(hero);
+
+  const pa = CarIQShared.el('button', { class: 'btn btn-outline mt12' }, '🔄 دوباره بازی کن');
+  pa.addEventListener('click', () => { resetState(); showScreen('screen-game'); renderRound(); });
+  root.appendChild(pa);
+
+  root.appendChild(CarIQShared.buildLeadBox({
+    source: 'compare',
+    resultText: `${ok}/${ROUNDS} — ${state.score}pts`,
+    ctaMsg: `سلام! تو بازی «کدوم گرون‌تره» ${ok} از ${ROUNDS} رو درست زدم. می‌خوام قیمت واقعی واردات رو بدونم 💰`,
+    sharePayload: {
+      emoji: emoji,
+      text: `تو بازی «کدوم گرون‌تره؟» ${ok} از ${ROUNDS} رو درست حدس زدم! تو بهتر می‌زنی؟ ⚖️`,
+    },
+  }));
+}
+</script>
+</body>
+</html>
