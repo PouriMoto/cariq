@@ -374,6 +374,16 @@ function showResult() {
     ctaMsg: `سلام! تو بازی «حدس قیمت» ${exact} از ${ROUNDS} رو دقیق زدم و ${state.score} امتیاز گرفتم. می‌خوام قیمت واقعی واردات رو بدونم 💰`,
     sharePayload: {
       emoji: emoji,
+      imgSrc: state.deck.length ? state.deck[state.deck.length - 1].img : '',
+      colorFrom: '#3a2508', colorTo: '#5c3d10',
+      kicker: 'نتیجه‌ی بازی «حدس قیمت»',
+      title: `${state.score} امتیاز`,
+      subtitle: rank,
+      desc: `${exact} حدس دقیق، ${near} نزدیک از ${ROUNDS} دور`,
+      stats: [
+        { val: exact, label: 'دقیق' },
+        { val: near, label: 'نزدیک' },
+      ],
       text: `تو بازی «حدس قیمت» ${state.score} امتیاز گرفتم و ${exact} از ${ROUNDS} قیمت رو دقیق زدم! تو چند تا رو درست می‌زنی؟ 💰`,
     },
   }));
