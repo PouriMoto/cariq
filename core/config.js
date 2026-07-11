@@ -14,15 +14,15 @@ const CarIQConfig = (() => {
     industry: 'auto',          // auto | real_estate | mobile | travel | fashion
     contact: {
       telegram: '@pouriabh',
-      phone: '09172079245',
-      whatsapp: '989172079245',
+      phone: '09190100216',
+      whatsapp: '989190100216',
     },
-    cta_message: 'سلام! از بازی CarIQ اومدم و می‌خوام درباره واردات ماشین مشورت کنم.',
+    cta_message: 'سلام! از بازی CarIQ اومدم و می‌خوام درباره واردات ماشین منطقه آزاد با شما مشورت کنم.',
     share_template: '{emoji} تو {game} نتیجه‌ام {result} شد! تو هم امتحان کن 🚗',
     admin_pass_hash: 'cariq2025',   // در پروداکشن hash کنید
     games_enabled: ['blur', 'speed', 'price', 'personality', 'wheel', 'compare'],
     games_order:   ['personality', 'blur', 'price', 'speed', 'wheel', 'compare'],
-    lobby_title: 'تو چه جور ماشین‌بازی؟',
+    lobby_title: 'ماشین بازی یا نه ؟',
     lobby_subtitle: 'بازی کن — یاد بگیر — ماشین بخر',
   };
 
